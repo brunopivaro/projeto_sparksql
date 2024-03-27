@@ -83,3 +83,15 @@ print(df_sqldf_2.head())
 spark = SparkSession.builder.master('local').appName('projeto_pyspark_sql').getOrCreate()
 df = pd.read_sql('SELECT * FROM tabela_df1', engine)
 df_spark = spark.createDataFrame(df)
+
+#Manipulando dados no Spark SQL
+df1 = pd.read_sql('SELECT * FROM tabela_df4', engine)
+df_spark_1 = spark.createDataFrame(df1)
+
+df_select = df_spark_1.select('Name', 'Nationality', 'Club_Joining', 'Height', 'Weight', 'Age', 'Speed', 'Reactions')
+print(df_select.where((df_spark_1.Age < 25) & (df_spark_1.Speed > 80)).show())
+print(df_select.agg({'Speed': 'Avg'}).show())
+
+#Encerrando conexões
+pgconn.close()
+engine.dispose()
