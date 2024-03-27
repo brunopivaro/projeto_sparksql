@@ -54,4 +54,32 @@ pgconn.close()
 pgconn = psycopg2.connect(host = 'localhost', database = 'dbdsa', user = 'postgres', password = 'dsa123')
 
 #Criando engine no SQLAlchemy de conexão ao PostgreSQL no Docker
-engine = create_engine('postgresql+psycopg2://postgres:dsa123@localhost/dbdsa')
+engine = create_engine('postgresql+psycopg2://postgres:dsa123@localhost/dbdsa') #Motor de execução
+
+#Importando dados dos nossos dataframes no banco de dados
+df1.to_sql("tabela_df1", engine, if_exists = 'replace', index = False)
+df2.to_sql("tabela_df2", engine, if_exists = 'replace', index = False)
+df3.to_sql("tabela_df3", engine, if_exists = 'replace', index = False)
+df4.to_sql("tabela_df4", engine, if_exists = 'replace', index = False)
+
+#Carregando dados do PostgreSQL em dataframes do python utilizando o PandaSQL
+print(pd.read_sql_query('select count(*) FROM tabela_df2', engine))
+df_tabela_df4 = pd.read_sql('select * FROM tabela_df4', engine) #Salvando tabela_df4 em um dataframe no python
+select_df = pd.read_sql('tabela_df4', engine, columns = ['Name', 'Age', 'Speed', 'Height', 'Weight']) #Filtrando colunas
+
+#Aplicando funções de SQL nos dataframes
+pysqldf = lambda q: sqldf(q, globals())
+query = 'SELECT * FROM select_df LIMIT 5'
+pysqldf(query)
+
+df_sqldf_1 = pysqldf(query)
+print(df_sqldf_1.head())
+
+query = 'SELECT Age, AVG("Speed") AS mean_Speed FROM select_df GROUP BY Age LIMIT 10'
+df_sqldf_2 = pysqldf(query)
+print(df_sqldf_2.head())
+
+#Carregando dados do PostgreSQL em dataframes do Apache Spark
+spark = SparkSession.builder.master('local').appName('projeto_pyspark_sql').getOrCreate()
+df = pd.read_sql('SELECT * FROM tabela_df1', engine)
+df_spark = spark.createDataFrame(df)
