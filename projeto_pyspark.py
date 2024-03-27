@@ -38,3 +38,20 @@ df4 = pd.read_csv("data/dataset4.csv", index_col = False)
 print(df4.shape)
 print(df4.dtypes)
 print(df4.head())
+
+#Conectando ao SGBD
+
+#Criando conexão
+pgconn = psycopg2.connect(host = 'localhost', user = 'postgres', password = 'dsa123')
+pgcursor = pgconn.cursor()
+pgcursor
+pgconn.set_isolation_level(ISOLATION_LEVEL_AUTOCOMMIT)  #Auto-commit
+pgcursor.execute('DROP DATABASE IF EXISTS dbdsa') #Exclui banco caso exista
+pgcursor.execute('CREATE DATABASE dbdsa') #Criando banco de dados
+pgconn.close()
+
+#Conectando ao banco de dados
+pgconn = psycopg2.connect(host = 'localhost', database = 'dbdsa', user = 'postgres', password = 'dsa123')
+
+#Criando engine no SQLAlchemy de conexão ao PostgreSQL no Docker
+engine = create_engine('postgresql+psycopg2://postgres:dsa123@localhost/dbdsa')
